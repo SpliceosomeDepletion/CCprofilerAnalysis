@@ -23,10 +23,14 @@ bsub -J 07_massDistributionDavid Rscript --vanilla ./07_massDistributionDavid.R
 # protein feature finding
 # bsub -n 10 -J 08_proteinFeatureFinding_plus Rscript --vanilla ./08_proteinFeatureFinding_plus.R
 # bsub -n 10 -J 08_proteinFeatureFinding_minus Rscript --vanilla ./08_proteinFeatureFinding_minus.R
+# bsub -n 10 -J 08_proteinFeatureFinding Rscript --vanilla ./08_proteinFeatureFinding_all.R
 # bsub -J 10_proteinFeatureStats Rscript --vanilla ./10_proteinFeatureStats.R
 # integrated protein feature finding
-bsub -n 10 -J 08_proteinFeatureFinding_all Rscript --vanilla ./08_proteinFeatureFinding_all.R
+bsub -n 10 -J 08_proteinFeatureFinding_all Rscript --vanilla ./CCprofilerAnalysis/08_proteinFeatureFinding_all.R
 
 # complex feature finding
 bsub -n 10 -J 09_complexFeatureFinding Rscript --vanilla ./09_complexFeatureFinding.R
 bsub -J 11_complexFeatureStats -w "09_complexFeatureFinding" Rscript --vanilla ./11_complexFeatureStats.R
+
+
+bsub -J 05_proteinQuant -R "rusage[mem=500000,scratch=500000]" -W 4:00 Rscript --vanilla ./CCprofilerAnalysis/05_proteinQuant.R

@@ -6,12 +6,14 @@ install_github("CCprofiler/CCprofiler", ref = "DA_module")
 library(CCprofiler)
 
 #data <- fread("../../data/DIAsearch/output/aligned.csv")
-data <- fread("../../data/DIAsearch/output_old/aligned_filtered.csv")
+data <- fread("../../data/DIAsearch/output/aligned_filtered.csv")
 data[, filename := gsub("/cluster/home/ibludau/mysonas/html/openBIS/.*\\/|\\.mzXML\\.gz", "", filename)]
 setkey(data, "filename")
-setnames(data, "FullUniModPeptideName", "FullPeptideName")
-data <- subset(data, peak_group_rank==1)
+# setnames(data, "FullUniModPeptideName", "FullPeptideName")
 data <- subset(data, decoy==0)
+# remove reverse from data
+idx_rev <- grep("reverse",data$ProteinName)
+if(length(idx_rev) > 0) { data <- data[-idx_rev] }
 
 ann <- fread("../../fraction_annotation.csv")
 
@@ -31,7 +33,7 @@ summary(traces_list)
 # remone non genotypic IDs
 genes <- c(traces_list$minus$trace_annotation$gene_id,traces_list$plus$trace_annotation$gene_id)
 genes <- unique(genes)
-genes_typ_idx <- grep("1/",genes)
+genes_typ_idx <- grep("^1/",genes)
 genes_typ <- genes[genes_typ_idx]
 # non-genotypic entries
 length(genes) - length(genes_typ_idx)

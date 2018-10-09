@@ -11,18 +11,18 @@ design_matrix <- readRDS("design_matrix.rda")
 
 test_proteins <- c("Q6P2Q9")
 pepTest <- subset(traces_list, trace_subset_ids = test_proteins, trace_subset_type = "protein_id")
-plot(pepTest, design_matrix = design_matrix, log = FALSE, legend = T, PDF = TRUE,
- name = paste0("PeptideTraces_","PRPF8"), isoformAnnotation = TRUE, plot = TRUE, highlight = NULL, highlight_col = NULL)
+plot(pepTest, design_matrix = design_matrix, log = FALSE, legend = F, PDF = TRUE,
+ name = paste0("PeptideTraces_","PRPF8"), isoformAnnotation = F, plot = TRUE, highlight = NULL, highlight_col = NULL)
 
 test_proteins <- c("Q96DI7")
 pepTest <- subset(traces_list, trace_subset_ids = test_proteins, trace_subset_type = "protein_id")
-plot(pepTest, design_matrix = design_matrix, log = FALSE, legend = T, PDF = TRUE,
- name = paste0("PeptideTraces_","SNRNP40"), isoformAnnotation = TRUE, plot = TRUE, highlight = NULL, highlight_col = NULL)
+plot(pepTest, design_matrix = design_matrix, log = FALSE, legend = F, PDF = TRUE,
+ name = paste0("PeptideTraces_","SNRNP40"), isoformAnnotation = F, plot = TRUE, highlight = NULL, highlight_col = NULL)
 
 test_proteins <- c("P14618")
 pepTest <- subset(traces_list, trace_subset_ids = test_proteins, trace_subset_type = "protein_id")
 plot(pepTest, design_matrix = design_matrix, log = FALSE, legend = F, PDF = TRUE,
- name = paste0("PeptideTraces_","PKMall"), isoformAnnotation = TRUE, plot = TRUE, highlight = NULL, highlight_col = NULL)
+ name = paste0("PeptideTraces_","PKMall"), isoformAnnotation = F, plot = TRUE, highlight = NULL, highlight_col = NULL)
 
 PKM_traces <- subset(traces_list,trace_subset_ids="P14618",trace_subset_type="protein_id")
 traces_minus <- PKM_traces$minus$traces
@@ -155,52 +155,52 @@ dev.off()
 
 test_proteins <- c("P40763")
 pepTest <- subset(traces_list, trace_subset_ids = test_proteins, trace_subset_type = "protein_id")
-plot(pepTest, design_matrix = design_matrix, log = FALSE, legend = T, PDF = TRUE,
-     name = paste0("PeptideTraces_","STAT3"), isoformAnnotation = TRUE, plot = TRUE, highlight = NULL, highlight_col = NULL)
+plot(pepTest, design_matrix = design_matrix, log = FALSE, legend = F, PDF = TRUE,
+     name = paste0("PeptideTraces_","STAT3"), isoformAnnotation = F, plot = TRUE, highlight = NULL, highlight_col = NULL)
 
  # mitotic Ashok
  test_proteins <- c("Q9UJX2")
  pepTest <- subset(traces_list, trace_subset_ids = test_proteins, trace_subset_type = "protein_id")
- plot(pepTest, design_matrix = design_matrix, log = FALSE, legend = T, PDF = TRUE,
-      name = paste0("PeptideTraces_","APC8"), isoformAnnotation = TRUE, plot = TRUE, highlight = NULL, highlight_col = NULL)
+ plot(pepTest, design_matrix = design_matrix, log = FALSE, legend = F, PDF = TRUE,
+      name = paste0("PeptideTraces_","APC8"), isoformAnnotation = F, plot = TRUE, highlight = NULL, highlight_col = NULL)
 
  test_proteins <- c("Q12834")
  pepTest <- subset(traces_list, trace_subset_ids = test_proteins, trace_subset_type = "protein_id")
- plot(pepTest, design_matrix = design_matrix, log = TRUE, legend = T, PDF = TRUE,
-      name = paste0("PeptideTraces_","CDC20"), isoformAnnotation = TRUE, plot = TRUE, highlight = NULL, highlight_col = NULL)
+ plot(pepTest, design_matrix = design_matrix, log = FALSE, legend = F, PDF = TRUE,
+      name = paste0("PeptideTraces_","CDC20"), isoformAnnotation = F, plot = TRUE, highlight = NULL, highlight_col = NULL)
 
  test_proteins <- c("Q14674")
  pepTest <- subset(traces_list, trace_subset_ids = test_proteins, trace_subset_type = "protein_id")
- plot(pepTest, design_matrix = design_matrix, log = FALSE, legend = T, PDF = TRUE,
-      name = paste0("PeptideTraces_","Separin"), isoformAnnotation = TRUE, plot = TRUE, highlight = NULL, highlight_col = NULL)
+ plot(pepTest, design_matrix = design_matrix, log = FALSE, legend = F, PDF = TRUE,
+      name = paste0("PeptideTraces_","Separin"), isoformAnnotation = F, plot = TRUE, highlight = NULL, highlight_col = NULL)
 
  test_proteins <- c("Q8IZT6") # "ASPM"
  pepTest <- subset(traces_list, trace_subset_ids = test_proteins, trace_subset_type = "protein_id")
 
  test_proteins <- c("Q8WVK7")
  pepTest <- subset(traces_list, trace_subset_ids = test_proteins, trace_subset_type = "protein_id")
- plot(pepTest, design_matrix = design_matrix, log = FALSE, legend = T, PDF = TRUE,
-      name = paste0("PeptideTraces_","SKA2"), isoformAnnotation = TRUE, plot = TRUE, highlight = NULL, highlight_col = NULL)
+ plot(pepTest, design_matrix = design_matrix, log = FALSE, legend = F, PDF = TRUE,
+      name = paste0("PeptideTraces_","SKA2"), isoformAnnotation = F, plot = TRUE, highlight = NULL, highlight_col = NULL)
 
  test_proteins <- c("P49450")
  pepTest <- subset(traces_list, trace_subset_ids = test_proteins, trace_subset_type = "protein_id")
 
  test_proteins <- c("Q9Y266")
  pepTest <- subset(traces_list, trace_subset_ids = test_proteins, trace_subset_type = "protein_id")
- plot(pepTest, design_matrix = design_matrix, log = FALSE, legend = T, PDF = TRUE,
-      name = paste0("PeptideTraces_","NUDC"), isoformAnnotation = TRUE, plot = TRUE, highlight = NULL, highlight_col = NULL)
+ plot(pepTest, design_matrix = design_matrix, log = FALSE, legend = F, PDF = TRUE,
+      name = paste0("PeptideTraces_","NUDC"), isoformAnnotation = F, plot = TRUE, highlight = NULL, highlight_col = NULL)
 
 test_proteins <- c("O43143")
 pepTest <- subset(traces_list, trace_subset_ids = test_proteins, trace_subset_type = "protein_id")
-plot(pepTest, design_matrix = design_matrix, log = FALSE, legend = T, PDF = TRUE,
-     name = paste0("PeptideTraces_","hPrp43"), isoformAnnotation = TRUE, plot = TRUE, highlight = NULL, highlight_col = NULL)
+plot(pepTest, design_matrix = design_matrix, log = FALSE, legend = F, PDF = TRUE,
+     name = paste0("PeptideTraces_","hPrp43"), isoformAnnotation = F, plot = TRUE, highlight = NULL, highlight_col = NULL)
 
 test_proteins <- c("P07195")
 pepTest <- subset(traces_list, trace_subset_ids = test_proteins, trace_subset_type = "protein_id")
-plot(pepTest, design_matrix = design_matrix, log = FALSE, legend = T, PDF = TRUE,
-     name = paste0("PeptideTraces_","LDHB"), isoformAnnotation = TRUE, plot = TRUE, highlight = NULL, highlight_col = NULL)
+plot(pepTest, design_matrix = design_matrix, log = FALSE, legend = F, PDF = TRUE,
+     name = paste0("PeptideTraces_","LDHB"), isoformAnnotation = F, plot = TRUE, highlight = NULL, highlight_col = NULL)
 
 test_proteins <- c("P42167")
 pepTest <- subset(traces_list, trace_subset_ids = test_proteins, trace_subset_type = "protein_id")
-plot(pepTest, design_matrix = design_matrix, log = FALSE, legend = T, PDF = TRUE,
- name = paste0("PeptideTraces_","LAP2"), isoformAnnotation = TRUE, plot = TRUE, highlight = NULL, highlight_col = NULL)
+plot(pepTest, design_matrix = design_matrix, log = FALSE, legend = F, PDF = TRUE,
+ name = paste0("PeptideTraces_","LAP2"), isoformAnnotation = F, plot = TRUE, highlight = NULL, highlight_col = NULL)

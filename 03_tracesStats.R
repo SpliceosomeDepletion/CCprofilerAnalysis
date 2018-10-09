@@ -12,6 +12,9 @@ design_matrix <- readRDS("design_matrix.rda")
 countIDs <- summarize_proteogenomics(traces_list)
 getIDs <- getProteogenomicsIds(traces_list)
 
+#isoform <- annotateLeadingIsoform(traces_list)
+#isoform_geneLocation <- annotateGenomicCoordinates(isoform)
+
 # plot condition overlaps
 library("Vennerable")
 

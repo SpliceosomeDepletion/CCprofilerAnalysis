@@ -41,6 +41,46 @@ saveRDS(scoredDataAll, "scoredDataAll_005_FDR.rds")
 write.table(scoredDataAll, paste0(hypothesis,"_scoredDataAll_005_FDR.txt"),sep="\t",quote=F,row.names=F)
 
 plotSummarizedComplexes(scoredDataAll, complexHypotheses, protTraces, PDF=TRUE, name="complex_completeness_pie")
+
+plotSummarizedComplexes_emptyPie <- function(complexFeatures,hypotheses,protTraces,PDF=FALSE,name="complex_completeness_pie"){
+  targetFeatures <- copy(complexFeatures)
+  targetHypotheses <- copy(hypotheses)
+  targetFeatures <- targetFeatures[grep("DECOY",targetFeatures$complex_id,invert=TRUE)]
+  targetHypotheses <- targetHypotheses[grep("DECOY",targetHypotheses$complex_id,invert=TRUE)]
+  proteins_in_targetHypotheses <- unique(targetHypotheses$protein_id)
+  proteins_in_traces <- unique(protTraces$traces$id)
+  targetHypotheses[,annotated:=1]
+  targetHypotheses[,detected:=ifelse(protein_id %in% proteins_in_traces, 1, 0)]
+  #targetHypotheses[,protein_collapsed := paste(protein_id,collapse=";"),by=complex_id]
+  targetHypotheses[,annotated_collapsed := sum(annotated),by=complex_id]
+  targetHypotheses[,detected_collapsed := sum(detected),by=complex_id]
+  targetHypotheses[,ms_completeness := detected_collapsed/annotated_collapsed,by=complex_id]
+  unique_targetHypotheses <- unique(targetHypotheses,by="complex_id")
+  #unique_targetHypotheses_50 <- subset(unique_targetHypotheses,ms_completeness >= 0.5)
+
+  targetFeatures <- getBestFeatures(targetFeatures)
+  targetFeatures_min50 <- subset(targetFeatures,(completeness>=0.5) & (completeness<1))
+  targetFeatures_100 <- subset(targetFeatures,completeness==1)
+  targetFeatures_lower50 <- subset(targetFeatures,completeness<0.5)
+
+  #complexFeatures_noDecoys <- complexFeatures[grep("DECOY",complexFeatures$complex_id,invert=TRUE)]
+  complexCompletenessSummary <- data.table(name=c("no co-elution","co-elution feature"),
+                                        count=c(
+                                          sum(!(unique_targetHypotheses$complex_id %in% targetFeatures$complex_id)),
+                                          sum(unique_targetHypotheses$complex_id %in% targetFeatures$complex_id)
+                                          )
+                                        )
+
+
+  cbPalette <- c("white", "#56B4E9")
+  if(PDF){pdf(gsub("$|\\.pdf$", ".pdf", name))}
+    print(pie(x=complexCompletenessSummary$count,labels=paste0(complexCompletenessSummary$name,"\n",complexCompletenessSummary$count),col=cbPalette[1:nrow(complexCompletenessSummary)]))
+    print(pie(x=complexCompletenessSummary$count,labels="",col=cbPalette[1:nrow(complexCompletenessSummary)]))
+  if(PDF){dev.off()}
+}
+
+plotSummarizedComplexes_emptyPie(scoredDataAll, complexHypotheses, protTraces, PDF=TRUE, name="complex_completeness_emptyPie")
+
 summarizeFeatures(scoredDataAll,
                   plot=TRUE,
                   PDF=TRUE,

@@ -19,20 +19,20 @@ design_matrix <- readRDS("design_matrix.rda")
 #' We perform feature finding both on the traces from the individual conditions as well as on the integrated traces. The individual features are used mainly for isoform scoring, while the summed
 #' features are used for differential analysis between conditions.
 #+ cache = T
-proteinFeatures  <- findProteinFeatures(traces=pepTracesSum,
-                                             corr_cutoff=0.9,
-                                             window_size=8,
-                                             parallelized=TRUE,
-                                             n_cores=10,
-                                             collapse_method="apex_only",
-                                             perturb_cutoff= "5%",
-                                             rt_height=1,
-                                             smoothing_length=7,
-                                             useRandomDecoyModel=TRUE)
-
-print("Protein feature finding on summed traces done.")
-getwd()
-saveRDS(proteinFeatures, "integrated_proteinFeatures.rda")
+#proteinFeatures  <- findProteinFeatures(traces=pepTracesSum,
+#                                             corr_cutoff=0.9,
+#                                             window_size=8,
+#                                             parallelized=TRUE,
+#                                             n_cores=10,
+#                                             collapse_method="apex_only",
+#                                             perturb_cutoff= "5%",
+#                                             rt_height=1,
+#                                             smoothing_length=7,
+#                                             useRandomDecoyModel=TRUE)
+#
+#print("Protein feature finding on summed traces done.")
+#getwd()
+#saveRDS(proteinFeatures, "integrated_proteinFeatures.rda")
 
 proteinFeaturesMinus  <- findProteinFeatures(traces=pepTraces$minus,
                                              corr_cutoff=0.9,
@@ -45,16 +45,16 @@ proteinFeaturesMinus  <- findProteinFeatures(traces=pepTraces$minus,
                                              smoothing_length=7,
                                              useRandomDecoyModel=TRUE)
 
-proteinFeaturesPlus  <- findProteinFeatures(traces=pepTraces$plus,
-                                             corr_cutoff=0.9,
-                                             window_size=8,
-                                             parallelized=TRUE,
-                                             n_cores=10,
-                                             collapse_method="apex_only",
-                                             perturb_cutoff= "5%",
-                                             rt_height=1,
-                                             smoothing_length=7,
-                                             useRandomDecoyModel=TRUE)
+#proteinFeaturesPlus  <- findProteinFeatures(traces=pepTraces$plus,
+#                                             corr_cutoff=0.9,
+#                                             window_size=8,
+#                                             parallelized=TRUE,
+#                                             n_cores=10,
+#                                             collapse_method="apex_only",
+#                                             perturb_cutoff= "5%",
+#                                             rt_height=1,
+#                                             smoothing_length=7,
+#                                             useRandomDecoyModel=TRUE)
 
 #proteinFeaturesInd  <- lapply(pepTraces, findProteinFeatures,
 #                                             corr_cutoff=0.9,
@@ -70,23 +70,14 @@ print("Protein feature finding on individual traces done.")
 getwd()
 
 saveRDS(proteinFeaturesMinus, "proteinFeaturesMinus.rda")
-saveRDS(proteinFeaturesPlus, "proteinFeaturesPlus.rda")
 
 #' Protein features are filtered with an FDR cutoff based on the detection of decoy proteins.
 #+ cache = T, message =F
-filteredData <- scoreFeatures(proteinFeatures, FDR=0.05, PDF=T, name="qvalueStats_proteinFeatures_integrated")
 filteredDataMinus <- scoreFeatures(proteinFeaturesMinus, FDR=0.05, PDF=T, name="qvalueStats_proteinFeaturesMinus")
-filteredDataPlus <- scoreFeatures(proteinFeaturesPlus, FDR=0.05, PDF=T, name="qvalueStats_proteinFeaturesPlus")
-summarizeFeatures(filteredData,plot=TRUE,PDF=TRUE,name="proteinFeature_summary_integrated")
 summarizeFeatures(filteredDataMinus,plot=TRUE,PDF=TRUE,name="proteinFeature_summaryMinus")
-summarizeFeatures(filteredDataPlus,plot=TRUE,PDF=TRUE,name="proteinFeature_summaryPlus")
 # plotGlobalProteomeAssemblyState(filteredData, PDF=TRUE, name="globalProteomeAssemblyState_integrated")
 
-pdf("proteinFeature_summary_integrated_poster.pdf",height=4.5,width=3)
-summarizeFeatures(filteredData,plot=TRUE,PDF=FALSE,name="proteinFeature_summary_integrated")
-dev.off()
 
 pdf("proteinFeature_summary_individual_poster.pdf",height=4.5,width=3)
 summarizeFeatures(filteredDataMinus,plot=TRUE,PDF=FALSE,name="proteinFeature_summaryMinus")
-summarizeFeatures(filteredDataPlus,plot=TRUE,PDF=FALSE,name="proteinFeature_summaryPlus")
 dev.off()
