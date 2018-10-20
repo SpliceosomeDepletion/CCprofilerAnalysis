@@ -116,8 +116,6 @@ calculateSplicePval <- function(prot_names= NULL, mincorrtable, distr_fitted,
   return(mincorrtable[])
 }
 
-# in cluster function, here we return cut the tree by number of clustering, we could also
-# do cutoff. We return cl here, can also return groups by adding an option in the function.
 clusterPeptides <- function(genePeptideList, method = "single", clusterH = 0.5, clusterN = NULL, index = "silhouette", plot = FALSE, PDF=FALSE, name="hclust", ...) {
   if (PDF) {
     pdf(paste0(name,".pdf"))

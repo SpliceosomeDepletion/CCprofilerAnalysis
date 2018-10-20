@@ -9,15 +9,47 @@ library(CCprofiler)
 data <- fread("../../data/DIAsearch/output/aligned_filtered.csv")
 data[, filename := gsub("/cluster/home/ibludau/mysonas/html/openBIS/.*\\/|\\.mzXML\\.gz", "", filename)]
 setkey(data, "filename")
-# setnames(data, "FullUniModPeptideName", "FullPeptideName")
+
+# remove decoys
 data <- subset(data, decoy==0)
+data <- data[grep("DECOY",data$ProteinName,invert=T)]
 # remove reverse from data
-idx_rev <- grep("reverse",data$ProteinName)
-if(length(idx_rev) > 0) { data <- data[-idx_rev] }
+# these were in there at some oint because of missing filtering step in spectrast
+# idx_rev <- grep("reverse",data$ProteinName)
+# if(length(idx_rev) > 0) { data <- data[-idx_rev] }
+
+# remone non genotypic IDs
+# all non genotypic IDs start with 2/ or higher >> genotypic ones do not have prefix
+data <- data[grep("^ENSG",data$ProteinName,invert=F)]
+
+# maybe at some point add annotation from RNAseq
+isoform_annotation <- fread("../../data/DDAsearch/mapping_genotypic.tsv",sep="\t",header=F)
+isoform_annotation <- isoform_annotation[grep("^1/",V3)]
+isoform_annotation[,gene:=gsub("1/","",V3)]
+isoform_subset <- subset(isoform_annotation, select=c("V1","V2","gene"))
+
+# generate naked sequence for mapping
+isoform_ex <- copy(isoform_subset)
+isoform_ex$V1 <- gsub("\\(.*?\\)", "", isoform_ex$V1)
+isoform_ex$V1 <- gsub("\\[.*?\\]", "", isoform_ex$V1)
+isoform_ex$V1 <- gsub("\\.", "", isoform_ex$V1)
+isoform_ex$V1 <- gsub("\\/.*", "", isoform_ex$V1)
+
+names(isoform_ex) <- c("Sequence","annotation","ProteinName")
+isoform_ex_u <- unique(isoform_ex,by=c("Sequence","ProteinName"))
+
+#dups <- isoform_ex_u$Sequence[duplicated(isoform_ex_u$Sequence)]
+
+data.m <- merge(data,isoform_ex_u,all.x=T,all.y=F,by=c("Sequence","ProteinName"))
+data.m[,ProteinName:=annotation]
+data.m[,annotation:=NULL]
 
 ann <- fread("../../fraction_annotation.csv")
 
-traces_list <- importMultipleCondiionsFromOpenSWATH(data=data,annotation_table=ann,
+# for some reason important @TODO change this
+setkey(data.m, "filename")
+
+traces_list <- importMultipleCondiionsFromOpenSWATH(data=data.m,annotation_table=ann,
   rm_requantified=TRUE,
   rm_decoys = FALSE,
   rm_nonProteotypic = FALSE,
@@ -25,21 +57,16 @@ traces_list <- importMultipleCondiionsFromOpenSWATH(data=data,annotation_table=a
   proteogenomicsWF=TRUE,
   verbose=TRUE)
 
-rm(data)
+rm(data,data.m)
 gc()
 
 summary(traces_list)
 
-# remone non genotypic IDs
-genes <- c(traces_list$minus$trace_annotation$gene_id,traces_list$plus$trace_annotation$gene_id)
-genes <- unique(genes)
-genes_typ_idx <- grep("^1/",genes)
-genes_typ <- genes[genes_typ_idx]
-# non-genotypic entries
-length(genes) - length(genes_typ_idx)
-# subset traces_list
-traces_list <- subset(traces_list,trace_subset_ids=genes_typ,trace_subset_type="gene_id")
-
+# add gene_id
+#traces_list$minus$trace_annotation[,gene_id := protein_id]
+#traces_list$minus$trace_annotation[,protein_id := NULL]
+#traces_list$plus$trace_annotation[,gene_id := protein_id]
+#traces_list$plus$trace_annotation[,protein_id := NULL]
 
 # map genes to uniprot
 library(biomaRt)

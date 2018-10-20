@@ -1,7 +1,8 @@
 
 module load new
 module load /cluster/apps/imsb/modules
-module load r/3.4.0
+#module load r/3.4.0
+module load r/3.5.1
 module load mpfr
 module load open_mpi
 
@@ -34,3 +35,6 @@ bsub -J 11_complexFeatureStats -w "09_complexFeatureFinding" Rscript --vanilla .
 
 
 bsub -J 05_proteinQuant -R "rusage[mem=500000,scratch=500000]" -W 4:00 Rscript --vanilla ./CCprofilerAnalysis/05_proteinQuant.R
+
+
+bsub -J GenomicCoordinates -R "rusage[mem=500000,scratch=500000]" -W 120:00 Rscript --vanilla ./CCprofilerAnalysis/peptideClustering/example_genomicExonAnnotation.R

@@ -1,12 +1,51 @@
 library(devtools)
-#setwd("~/mysonas/CCprofiler")
-#load_all()
+setwd("~/mysonas/CCprofiler")
+load_all()
 setwd("~/mysonas/PRPF8/analysis/output")
-install_github("CCprofiler/CCprofiler", ref = "DA_module")
-library(CCprofiler)
+#install_github("CCprofiler/CCprofiler", ref = "DA_module")
+#library(CCprofiler)
 
 traces_list <- readRDS("pepTracesRaw.rda")
 design_matrix <- readRDS("design_matrix.rda")
+
+#traces_list <- subset(traces_list,trace_subset_ids="P61978",trace_subset_type="protein_id")
+
+
+traces_integrated <- integrateTraceIntensities(traces_list,
+                                          design_matrix = NULL,
+                                          integrate_within = NULL,
+                                          aggr_fun = "sum")
+
+map_table <- readRDS("../../data/proteogenomics/HeLa_protgen_combined_1FPKM_header_mapping_v2.rda")
+
+#' ## Annotate the Leading isoform for each peptide
+traces_integrated_iso <- annotateLeadingIsoform(traces_integrated,
+                                 isoform_col = "isoform_id",
+                                 output_col = "LeadingIsoform")
+
+#' ## Find the relative position of each peptide in the protein sequence
+#' With the leadingIsoform we can use the mapping table that contains the sequences of the
+#' fasta file used for the proteomics search to determine the relative position of each peptide
+#' within the protein.
+traces_integrated_iso_pos <- annotateRelativePepPos(traces_integrated_iso,
+  map_table, multimatch = "first", verbose = T)
+
+#' Select one peptide as representative of peptides all
+#' starting at the same starting position
+traces_integrated_start <- summarizeAlternativePeptideSequences(
+  traces_integrated_iso_pos, topN=1,position="PeptidePositionStart")
+
+traces_integrated_start_end <- summarizeAlternativePeptideSequences(
+  traces_integrated_start, topN=1,position="PeptidePositionEnd")
+
+#setkey(traces_integrated_start$trace_annotation,"PeptidePositionStart")
+#setkey(traces_integrated_start_end$trace_annotation,"PeptidePositionStart")
+
+# subset traces list to selected peptides
+traces_list <- subset(traces_list,
+  unique(traces_integrated_start_end$traces$id))
+
+# @TODO genomic position info not transferred at the moment
 
 # traces alignment test
 alignTraces(traces_list, plot = T, PDF = T)
@@ -30,12 +69,12 @@ plotImputationSummary(pepTracesMV, pepTracesImp, PDF = T, plot_traces = T, max_n
 # pepTracesMedianNorm <- smootheTraces(pepTracesImp, method = "median", plot = T, PDF = T, smoothe_on_targets = T, span = 0.1)
 
 # Filter by consecutive IDs
-# pepTracesConsIds <- filterConsecutiveIdStretches(pepTracesMedianNorm,
-#                                             min_stretch_length = 2,
-#                                             remove_empty = T)
+pepTracesConsIds <- filterConsecutiveIdStretches(pepTracesImp,
+                                             min_stretch_length = 2,
+                                             remove_empty = T)
 
 # Calculate Sibling Peptide Correlation
-pepTracesImpSPC <- calculateSibPepCorr(pepTracesImp,
+pepTracesImpSPC <- calculateSibPepCorr(pepTracesConsIds,
                                    plot = T, PDF = T)
 
 # Remove proteins with single peptide
@@ -48,7 +87,7 @@ pepTracesImpSPCmultipep <- subset(pepTracesImpSPC,trace_subset_ids=multipep,trac
 # pepTracesImpSPC <- filterBySibPepCorr(pepTracesImpSPC, absolute_spcCutoff = 0 ,fdr_cutoff = NULL, plot = T, PDF = T)
 
 # Add mock eplicate peptide correlation
-# Update functions not to depend on this!
+# @TODO: Update functions not to depend on this!
 pepTracesImpSPCmultipep$minus$trace_annotation$RepPepCorr=1
 pepTracesImpSPCmultipep$plus$trace_annotation$RepPepCorr=1
 
