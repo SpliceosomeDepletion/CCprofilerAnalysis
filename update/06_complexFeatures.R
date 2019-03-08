@@ -35,7 +35,8 @@ if (length(grep("nas21.ethz.ch",getwd()))>0) {
 #' ## Load data
 protTracesSum <- readRDS("protein_traces_sum.rds")
 design_matrix <- readRDS("design_matrix.rda")
-corumHypotheses <- exampleComplexHypotheses
+#corumHypotheses <- rbind(exampleComplexHypotheses,corumComplexHypothesesRedundant[complex_id==1142])
+corumHypotheses <- readRDS("/Volumes/ibludau-1/html/SECpaper/output_data/corum/complexTargetsPlusDecoys.rds")
 
 #' ## Complex feature finding
 complexFeatures <-  findComplexFeatures(traces = protTracesSum,
@@ -51,6 +52,15 @@ complexFeatures <-  findComplexFeatures(traces = protTracesSum,
 
 saveRDS(complexFeatures,"corumComplexFeatures.rda")
 
+complexFeatures <- filterFeatures(complexFeatures,
+                                  complex_ids = NULL,
+                                  protein_ids = NULL,
+                                  min_feature_completeness = NULL,
+                                  min_hypothesis_completeness = NULL,
+                                  min_subunits = NULL,
+                                  min_peak_corr = NULL,
+                                  min_monomer_distance_factor = 2)
+
 hypothesis <- "corum"
 calibrationFunctions <- readRDS("calibration.rds")
 
@@ -58,9 +68,13 @@ plotSummarizedMScoverage(hypotheses = corumHypotheses, protTracesSum, PDF = F)
 
 complexFeaturesBest <- getBestFeatures(complexFeatures)
 
-complexFeaturesBestFiltered <- scoreFeatures(complexFeaturesBest, FDR=0.1, PDF=F, name="qvalueStats_complexFeatures")
+complexFeaturesBestFiltered <- scoreFeatures(complexFeaturesBest, FDR=0.05, PDF=F, name="qvalueStats_complexFeatures")
 
-scoredDataAll <- appendSecondaryComplexFeatures(scoredPrimaryFeatures = complexFeaturesBestFiltered, allFeatures = complexFeatures, peakCorr_cutoff = 0.5)
+featuresScored <- calculateCoelutionScore(complexFeaturesBest)
+qvalueFeaturesScored <- calculateQvalue(featuresScored, name="qvalueStats", PDF=F)
+
+
+scoredDataAll <- appendSecondaryComplexFeatures(scoredPrimaryFeatures = complexFeaturesBestFiltered, allFeatures = complexFeatures, peakCorr_cutoff = 0.7)
 
 plotSummarizedComplexes(scoredDataAll, corumHypotheses, protTracesSum, PDF=F, name="complex_completeness_pie")
 
@@ -74,14 +88,15 @@ summarizeFeatures(complexFeaturesBestFiltered,
                   PDF=F,
                   name="feature_summary_complexFeaturesBestFiltered")
 
-targets <- unique(scoredDataAll$complex_id)
-#pdf("complexFeatures_merged.pdf",width=8,height=4)
+targets <- unique(scoredDataAll$complex_id)[1:5]
+pdf("complexFeatures_merged.pdf",width=5,height=4)
 for(id in targets){
   plotFeatures(
     feature_table=scoredDataAll,
     traces=protTracesSum,
     feature_id = id,
     calibration=calibrationFunctions,
+    annotation_label="Entry_name",
     peak_area=TRUE,
     onlyBest = FALSE,
     monomer_MW = TRUE,
@@ -89,7 +104,27 @@ for(id in targets){
     name=id
   )
 }
-#dev.off()
+dev.off()
+
+protTraces <- readRDS("protein_traces_list.rds")
+
+pdf("complexFeatures_separate.pdf",width=5,height=4)
+for(id in targets){
+  plotFeatures(
+    feature_table=scoredDataAll,
+    traces=protTraces,
+    design_matrix = design_matrix,
+    feature_id = id,
+    calibration=calibrationFunctions,
+    annotation_label="Entry_name",
+    peak_area=TRUE,
+    onlyBest = FALSE,
+    monomer_MW = TRUE,
+    PDF=F,
+    name=id
+  )
+}
+dev.off()
 
 #' ## Extract intensity values for all detected features
 #' Load raw peptide-level traces
@@ -102,6 +137,8 @@ complex_featureVals <- extractFeatureVals(traces = pepTraces,
                                              imputeZero = T,
                                              verbose = F,
                                              perturb_cutoff = "5%")
+
+saveRDS(complex_featureVals, "complex_featureVals.rda")
 
 #' ## Fill feature values 
 complex_featureValsFilled <- fillFeatureVals(featureVals = complex_featureVals,
@@ -132,8 +169,4 @@ plotVolcano(complex_DiffExprProteoform, PDF = F, name = "complex_DiffExprProteof
 plotVolcano(complex_DiffExprProtein, PDF = F, name = "complex_DiffExprProtein")
 plotVolcano(complex_DiffExprComplex, PDF = F, name = "complex_DiffExprComplex")
 
-
-#' Volcanoplts highlighting different complexs
-plotVolcano(proteoform_DiffExprProteoform, highlight=c("Q6P2Q9_1"), PDF = T, name = "prot_DiffExprProt_PRPF8_Q6P2Q9_1")
-plotVolcano(proteoform_DiffExprProteoform, highlight=c("Q6P2Q9_2"), PDF = T, name = "prot_DiffExprProt_PRPF8_Q6P2Q9_2")
-plotVolcano(proteoform_DiffExprProteoform, highlight=c("Q6P2Q9_3"), PDF = T, name = "prot_DiffExprProt_PRPF8_Q6P2Q9_3")
+plotVolcano(complex_DiffExprComplex, highlight=c("1142"), PDF = F, name = "complex_DiffExprComplex_1142")
