@@ -183,8 +183,8 @@ withProteoforms_DiffExprProtein <- subset(proteoform_DiffExprProtein, n_proteofo
 getCount <- function(data){
   n_proteins <- length(unique(data$feature_id))
   n_differential_proteins <- length(unique(data[pBHadj<0.05][abs(medianLog2FC)>1]$feature_id))
-  up <- unique(data[pBHadj < 0.05][medianLog2FC < -1]$feature_id)
-  down <- unique(data[pBHadj < 0.05][medianLog2FC > 1]$feature_id)
+  up <- unique(data[pBHadj < 0.05][medianLog2FC > 1]$feature_id)
+  down <- unique(data[pBHadj < 0.05][medianLog2FC < -1]$feature_id)
   n_both <- length(intersect(up,down))
   n_up <- length(up[!up %in% down])
   n_down <- length(down[!down %in% up])
@@ -201,8 +201,8 @@ getCountFeatures <- function(data){
   data_m[, feature_id := paste0(c(feature_id,apex), collapse = "_"), by=c("feature_id","apex")]
   n_proteins <- length(unique(data_m$feature_id))
   n_differential_proteins <- length(unique(data_m[pBHadj<0.05][abs(medianLog2FC)>1]$feature_id))
-  up <- unique(data_m[pBHadj < 0.05][medianLog2FC < -1]$feature_id)
-  down <- unique(data_m[pBHadj < 0.05][medianLog2FC > 1]$feature_id)
+  up <- unique(data_m[pBHadj < 0.05][medianLog2FC > 1]$feature_id)
+  down <- unique(data_m[pBHadj < 0.05][medianLog2FC < -1]$feature_id)
   n_both <- length(intersect(up,down))
   n_up <- length(up[!up %in% down])
   n_down <- length(down[!down %in% up])

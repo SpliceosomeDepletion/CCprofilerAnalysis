@@ -12,8 +12,8 @@ withProteoforms_DiffExprComplex <- subset(complex_DiffExprComplex, has_proteofor
 getCount <- function(data){
   n_proteins <- length(unique(data$complex_id))
   n_differential_proteins <- length(unique(data[pBHadj<0.05][abs(medianLog2FC)>1]$complex_id))
-  up <- unique(data[pBHadj < 0.05][medianLog2FC < -1]$complex_id)
-  down <- unique(data[pBHadj < 0.05][medianLog2FC > 1]$complex_id)
+  up <- unique(data[pBHadj < 0.05][medianLog2FC > 1]$complex_id)
+  down <- unique(data[pBHadj < 0.05][medianLog2FC < -1]$complex_id)
   n_both <- length(intersect(up,down))
   n_up <- length(up[!up %in% down])
   n_down <- length(down[!down %in% up])

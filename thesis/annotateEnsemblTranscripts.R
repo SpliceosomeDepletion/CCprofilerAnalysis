@@ -53,6 +53,7 @@ reassignedFeatures_sub <- subset(reassignedFeatures, protein_id=="P61978")
 design_matrix <- readRDS("design_matrix.rda")
 calibrationFunctions <- readRDS("calibration.rds")
 
+pdf("P61978_colouredByTranscripts.pdf",height=4,width=7)
 plotFeatures(feature_table = reassignedFeatures_sub,
              traces = reassignedTraces_list_sub,
              calibration=calibrationFunctions,
@@ -64,13 +65,10 @@ plotFeatures(feature_table = reassignedFeatures_sub,
              legend = T,
              onlyBest = F,
              monomer_MW=F)
+dev.off()
 
-
-traces <- traces_exon_pval
-protein="P61978"
-PDF=FALSE
-closeGaps=T
-
+library(ggpubr)
+library(RColorBrewer)
 plotPeptideCluster(traces_exon_pval,"O75822",PDF=T, closeGaps=F)
 plotPeptideCluster(traces_exon_pval,"P27708",PDF=T, closeGaps=F)
 plotPeptideCluster(traces_exon_pval,"Q13263",PDF=T, closeGaps=F)
@@ -282,3 +280,5 @@ dev.off()
     dev.off()
   }
 }
+
+ 
