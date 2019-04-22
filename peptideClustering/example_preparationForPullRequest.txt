@@ -1,9 +1,0 @@
-# update branch that you want to merge into in the pull request
-git checkout DA_module
-git pull origin DA_module
-# switch to your branch where you made all the changes
-git checkout proteoformAnnotation
-# merge the target branch to resolve any potential conflicts prior to pull request
-git merge DA_module
-git push origin proteoformAnnotation
-# now create pull request (should be without conflicts)
