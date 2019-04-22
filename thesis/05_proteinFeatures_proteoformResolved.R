@@ -1,42 +1,9 @@
-#' ---
-#' title: "Proteoform feature finding"
-#' author: "Isabell Bludau"
-#' date: "October 21th, 2018"
-#' output:
-#'   html_document:
-#'     toc: true
-#'   html_notebook:
-#'     toc: true
-#'   pdf_document:
-#'     toc: true
-#' ---
-
-#' # Overview
-#' In this script we ...
-#'
-#' # Step-by-step workflow
-#'
-#' ## Load CCprofiler package and set working directory:
-library(devtools)
-#install_github("CCprofiler/CCprofiler", ref = "DA_module")
-#library(CCprofiler)
-if (length(grep("nas21.ethz.ch",getwd()))>0) {
-  setwd("~/mysonas/CCprofiler")
-  load_all()
-  setwd("~/mysonas/PRPF8/analysis/output")
-  knitr::opts_knit$set(root.dir = '~/mysonas/PRPF8/analysis/output')
-} else {
-  setwd("/Volumes/ibludau-1/CCprofiler")
-  load_all()
-  setwd("/Volumes/ibludau-1/PRPF8/analysis/output")
-  knitr::opts_knit$set(root.dir = '/Volumes/ibludau-1/PRPF8/analysis/output')
-}
-
 #' ## Load data
 traces_list_pepClusters <- readRDS("traces_list_pepClusters.rds")
 traces_sum_pepClusters <- readRDS("traces_sum_pepClusters.rds")
 proteinFeatures <- readRDS("proteinFeatures.rda")
 design_matrix <- readRDS("design_matrix.rda")
+calibrationFunctions <- readRDS("calibration.rds")
 
 #' ## Resolve protein features by clusters
 proteoformFeaturesResolved <- resolveProteoformSpecificFeatures(
@@ -68,38 +35,42 @@ reassignedFeatures <- reassigned[[2]]
 reassignedTraces_list <- annotateProteoformsAcrossConditions(traces_list_pepClusters,
                                                               reassignedTraces)
 
+summarizeFeatures(reassignedFeatures, PDF=T, name="proteoformReassiged_feature_summary")
+
 saveRDS(reassignedTraces,"traces_sum_reassignedProteoforms.rds")
 saveRDS(reassignedTraces_list,"traces_list_reassignedProteoforms.rds")
 saveRDS(reassignedFeatures,"reassignedProteoformFeatures.rds")
 
-reassignedTraces <- readRDS("traces_sum_reassignedProteoforms.rds")
-reassignedTraces_list <- readRDS("traces_list_reassignedProteoforms.rds")
-reassignedFeatures <- readRDS("reassignedProteoformFeatures.rds")
-##### 
+#reassignedTraces <- readRDS("traces_sum_reassignedProteoforms.rds")
+#reassignedTraces_list <- readRDS("traces_list_reassignedProteoforms.rds")
+#reassignedFeatures <- readRDS("reassignedProteoformFeatures.rds")
 
-length(unique(reassignedTraces$trace_annotation$protein_id))
-length(unique(reassignedTraces$trace_annotation[n_proteoforms>1]$protein_id))
+genes_noProteoforms <- unique(reassignedFeatures[grep("_",proteoform_ids, invert = T)]$protein_id)
+genes_withProteoforms <- unique(reassignedFeatures[grep("_",proteoform_ids)]$protein_id)
+proteofroms <- unique(reassignedFeatures[grep("_",proteoform_ids)]$proteoform_ids)
+proteoform_clusters <- unique(unlist(strsplit(proteofroms, split = ";")))
 
-proteoform_DT <- subset(reassignedTraces$trace_annotation, select = c("protein_id","n_proteoforms"))
+proteoform_DT <- subset(reassignedFeatures, select = c("protein_id","n_unique_proteoforms"))
 proteoform_DT <- unique(proteoform_DT)
 
-proteoform_count <- as.data.table(table(proteoform_DT$n_proteoforms))
-names(proteoform_count) <- c("n_proteoforms","genes")
-proteoform_count[,proteoform:=ifelse(n_proteoforms==1,"single functional proteoform", "multiple functional proteoforms")]
-proteoform_count$proteoform <- factor(proteoform_count$proteoform, levels = c("single functional proteoform", "multiple functional proteoforms"))
+proteoform_count <- as.data.table(table(proteoform_DT$n_unique_proteoforms))
+names(proteoform_count) <- c("n_unique_proteoforms","proteins")
+proteoform_count[,proteoform:=ifelse(n_unique_proteoforms==1,"single proteoform", "multiple proteoforms")]
+proteoform_count$proteoform <- factor(proteoform_count$proteoform, levels = c("single proteoform", "multiple proteoforms"))
 
 pdf("proteoform_count.pdf", width=6, height=4)
-p <- ggplot(proteoform_count , aes(x=n_proteoforms, y=genes, group=proteoform)) +
+p <- ggplot(proteoform_count , aes(x=n_unique_proteoforms, y=proteins, group=proteoform)) +
   facet_wrap(.~proteoform, scales = "free") + 
   geom_bar(stat="identity") +
-  geom_text(aes(label=round(genes, digits = 2)), vjust=-0.1, color="black",
+  geom_text(aes(label=round(proteins, digits = 2)), vjust=-0.1, color="black",
             position = position_dodge(0.9), size=3.5) +
-  theme_classic() 
+  theme_classic() +
+  xlab(label = "N proteoforms")
 print(p)
 dev.off()
 
-calibrationFunctions <- readRDS("calibration.rds")
-design_matrix <- readRDS("design_matrix.rda")
+
+#########
 
 #id = "P42167" # LAP2B
 #id = "Q15149" # PLEC
@@ -112,27 +83,11 @@ design_matrix <- readRDS("design_matrix.rda")
 #id = "P67936" # tpm4 >> looks promising but was not found
 #id = "Q9Y6E0" # >> brilliant example >> 2 terminal peptides are corresponding to isoform 2
 
-
-proteoform_genes <- unique(reassignedTraces$trace_annotation[n_proteoforms>1]$protein_id)
 proteoform_genes <- c("P42167","P14618","O43390")
-
-pdf("proteoform_traces.pdf", height=5, width=8)
+pdf("proteoform_LAP2B_PKM_hnrnpr.pdf", height=5, width=8)
 for (id in proteoform_genes) {
   sub <- subset(reassignedTraces_list, trace_subset_ids = id, trace_subset_type = "protein_id")
   plotPeptideCluster(reassignedTraces,id)
-  plot(traces = sub,
-       design_matrix=design_matrix,
-       colour_by="proteoform_id",
-       legend = T)
-  plotFeatures(feature_table = reassignedFeatures,
-               traces = reassignedTraces,
-               calibration=calibrationFunctions,
-               feature_id = id,
-               annotation_label="proteoform_id",
-               colour_by="proteoform_id",
-               peak_area = T,
-               legend = T,
-               onlyBest = F)
   plotFeatures(feature_table = reassignedFeatures,
                traces = reassignedTraces_list,
                calibration=calibrationFunctions,
@@ -142,14 +97,47 @@ for (id in proteoform_genes) {
                colour_by="proteoform_id",
                peak_area = T,
                legend = T,
-               onlyBest = F)
+               onlyBest = F,
+               monomer_MW=T)
+  plot(traces = sub,
+       design_matrix=design_matrix,
+       colour_by="proteoform_id",
+       legend = T)
+  plot(traces = sub,
+       design_matrix=design_matrix,
+       colour_by="isoform_id",
+       legend = T)
+  plot(traces = sub,
+       design_matrix=design_matrix,
+       colour_by="ensembl_protein_id",
+       legend = T)
 }
 dev.off()
 
-proteoform_genes <- unique(reassignedTraces$trace_annotation[n_proteoforms>1]$protein_id)
+
+proteoform_genes <- unique(reassignedTraces$trace_annotation[n_proteoforms>1]$protein_id)[1:100]
+#proteoform_genes <- c("P42167","P14618","O43390")
+
+pdf("proteoform_traces.pdf", height=5, width=8)
+for (id in proteoform_genes) {
+  sub <- subset(reassignedTraces_list, trace_subset_ids = id, trace_subset_type = "protein_id")
+  plotPeptideCluster(reassignedTraces,id)
+  plotFeatures(feature_table = reassignedFeatures,
+               traces = reassignedTraces_list,
+               calibration=calibrationFunctions,
+               feature_id = id,
+               design_matrix=design_matrix,
+               annotation_label="proteoform_id",
+               colour_by="proteoform_id",
+               peak_area = T,
+               legend = T,
+               onlyBest = F,
+               monomer_MW=T)
+}
+dev.off()
 
 pdf("proteoform_isoform_traces.pdf")
-for (id in proteoform_genes[1:50]) {
+for (id in proteoform_genes) {
   sub <- subset(reassignedTraces_list, trace_subset_ids = id, trace_subset_type = "protein_id")
   plotPeptideCluster(reassignedTraces,id)
   plot(traces = sub,

@@ -154,7 +154,7 @@ dev.off()
 
 #' ## Extract intensity values for all detected features
 #' Load raw peptide-level traces
-pepTraces <- readRDS("pepTraces_proteoformMulti.rds")
+pepTraces <- copy(peptide_traces_list)
 #' ## Extract feature values
 complex_featureVals <- extractFeatureVals(traces = pepTraces,
                                              features = scoredDataAll,
@@ -168,7 +168,8 @@ saveRDS(complex_featureVals, "complex_featureVals.rda")
 
 #' ## Fill feature values 
 complex_featureValsFilled <- fillFeatureVals(featureVals = complex_featureVals,
-                                                design_matrix = design_matrix)
+                                             tracesList = pepTraces,
+                                             design_matrix = design_matrix)
 
 saveRDS(complex_featureValsFilled, "complex_featureValsFilled.rda")
 
@@ -197,8 +198,14 @@ plotVolcano(complex_DiffExprProteoform, PDF = T, name = "complex_DiffExprProteof
 plotVolcano(complex_DiffExprProtein, PDF = T, name = "complex_DiffExprProtein")
 plotVolcano(complex_DiffExprComplex, PDF = T, name = "complex_DiffExprComplex")
 
+#' Volcanoplts highlighting different complexes
+library(ggrepel)
 plotVolcano(complex_DiffExprComplex, highlight=c("1142"), PDF = T, name = "complex_DiffExprComplex_1142_SMN")
 plotVolcano(complex_DiffExprComplex, highlight=c("659;685"), PDF = T, name = "complex_DiffExprComplex_659;685_MeCP1")
+
+######################################################
+######################################################
+######################################################
 
 protTraces <- readRDS("protein_traces_list.rds")
 #complex_DiffExprComplex[complex_id=="659;685"]

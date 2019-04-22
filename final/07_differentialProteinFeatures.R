@@ -74,6 +74,11 @@ plotVolcano(proteoform_DiffExprPep, PDF = T, name = "proteoform_DiffExprPep")
 plotVolcano(proteoform_DiffExprProteoform, PDF = T, name = "proteoform_DiffExprProteoform")
 plotVolcano(proteoform_DiffExprProtein, PDF = T, name = "proteoform_DiffExprProtein")
 
+plotVolcano(proteoform_DiffExprPep, PDF = T, name = "proteoform_DiffExprPep_MEDIAN")
+plotVolcano(proteoform_DiffExprProteoform, PDF = T, name = "proteoform_DiffExprProteoform_MEDIAN")
+plotVolcano(proteoform_DiffExprProtein, PDF = T, name = "proteoform_DiffExprProtein_MEDIAN")
+
+
 pdf("qqplot_localVSglobal.pdf")
 qqnorm(proteoform_DiffExprPep$local_vs_global_log2FC_imp)
 dev.off()
@@ -81,7 +86,7 @@ dev.off()
 #' Volcanoplts highlighting different proteoforms
 library(ggrepel)
 
-plotVolcano(proteoform_DiffExprProtein, highlight=c("Q6P2Q9"), PDF = F, name = "prot_DiffExprProt_PRPF8_Q6P2Q9")
+plotVolcano(proteoform_DiffExprProtein, highlight=c("Q6P2Q9"), PDF = T, name = "prot_DiffExprProt_PRPF8_Q6P2Q9")
 
 plotVolcano(proteoform_DiffExprProteoform, highlight=c("Q9HB71"), PDF = T, name = "prot_DiffExprProt_CACYBP_Q9HB71")
 
